@@ -3,23 +3,33 @@
     class PoliceCar : Vehicle
     {
         //constant string as TypeOfVehicle wont change allong PoliceCar instances
-        private const string typeOfVehicle = "Police Car"; 
-        private bool isPatrolling;
-        private SpeedRadar speedRadar;
+        private const string typeOfVehicle = "Police Car";
+        public bool IsPatrolling { get; private set; }  // Ahora es una propiedad pública con setter privado
+        public bool IsPursuing { get; private set; }    // Propiedad pública con setter privado
+         private SpeedRadar? speedRadar; // Puede tener, O NO, un radar
 
-        public PoliceCar(string plate) : base(typeOfVehicle, plate)
+        public PoliceCar(string plate, SpeedRadar? speedradar = null) : base(typeOfVehicle, plate)
         {
-            isPatrolling = false;
-            speedRadar = new SpeedRadar();
+            IsPatrolling = false;
+            IsPursuing = false;
+            speedRadar = speedradar;
         }
 
+        public void SetRadar(SpeedRadar speedRadar)
+        {
+            this.speedRadar = speedRadar;
+        }
         public void UseRadar(Vehicle vehicle)
         {
-            if (isPatrolling)
+            if (IsPatrolling)
             {
-                speedRadar.TriggerRadar(vehicle);
-                string meassurement = speedRadar.GetLastReading();
-                Console.WriteLine(WriteMessage($"Triggered radar. Result: {meassurement}"));
+                if (speedRadar != null)
+                {
+                    speedRadar.TriggerRadar(vehicle);
+
+                    string meassurement = speedRadar.GetLastReading();
+                    Console.WriteLine(WriteMessage($"Triggered radar. Result: {meassurement}"));
+                }
             }
             else
             {
@@ -27,16 +37,11 @@
             }
         }
 
-        public bool IsPatrolling()
-        {
-            return isPatrolling;
-        }
-
         public void StartPatrolling()
         {
-            if (!isPatrolling)
+            if (!IsPatrolling)
             {
-                isPatrolling = true;
+                IsPatrolling = true;
                 Console.WriteLine(WriteMessage("started patrolling."));
             }
             else
@@ -47,9 +52,9 @@
 
         public void EndPatrolling()
         {
-            if (isPatrolling)
+            if (IsPatrolling)
             {
-                isPatrolling = false;
+                IsPatrolling = false;
                 Console.WriteLine(WriteMessage("stopped patrolling."));
             }
             else
@@ -58,12 +63,34 @@
             }
         }
 
+        public void RecibeAlert(string infractorPlate)
+        {
+            if (IsPatrolling)
+            {
+                StartPursuing(infractorPlate);
+            }
+        }
+
+        public void StartPursuing(string infractorPlate)
+        {
+            IsPursuing = true;
+            Console.WriteLine($"Coche de policía con matrícula {GetPlate()} está persiguiendo a {infractorPlate}");
+        }
+
         public void PrintRadarHistory()
         {
-            Console.WriteLine(WriteMessage("Report radar speed history:"));
-            foreach (float speed in speedRadar.SpeedHistory)
+            if (speedRadar != null)
             {
-                Console.WriteLine(speed);
+
+                Console.WriteLine(WriteMessage("Report radar speed history:"));
+                foreach (float speed in speedRadar.SpeedHistory)
+                {
+                    Console.WriteLine(speed);
+                }
+            }
+            else
+            {
+                Console.WriteLine($"El coche con matrícula {GetPlate()} no tiene radar incorporado");
             }
         }
     }
