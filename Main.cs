@@ -7,8 +7,10 @@ namespace Practice1
             {
                 // 1. Creación de la ciudad, que incluye una comisaría
                 City city = new City();
+                PoliceStation policeStation = city.GetPoliceStation();
 
                 // 2. Registro de varios taxis en la ciudad
+            
                 Taxi taxi1 = new Taxi("0001 AAA");
                 Taxi taxi2 = new Taxi("0002 BBB");
                 Taxi taxi3 = new Taxi("0003 CCC");
@@ -18,10 +20,14 @@ namespace Practice1
                 city.RegisterTaxi(taxi3);
 
                 // 3. Registro de varios coches de policía (algunos con radar y otros sin radar)
-                SpeedRadar radar1 = new SpeedRadar();
-                PoliceCar policeCar1 = new PoliceCar("0001 CNP", radar1); 
-                PoliceCar policeCar2 = new PoliceCar("0002 CNP", null);   
-                PoliceCar policeCar3 = new PoliceCar("0003 CNP", radar1); 
+                SpeedRadar radar = new SpeedRadar();
+                PoliceCar policeCar1 = new PoliceCar("0001 CNP", policeStation, radar); 
+                PoliceCar policeCar2 = new PoliceCar("0002 CNP", policeStation, null);   
+                PoliceCar policeCar3 = new PoliceCar("0003 CNP", policeStation, radar);
+
+                policeStation.RegisterCar(policeCar1);
+                policeStation.RegisterCar(policeCar2);
+                policeStation.RegisterCar(policeCar3);
 
                 Console.WriteLine(policeCar1.WriteMessage("Registrado en la ciudad con radar."));
                 Console.WriteLine(policeCar2.WriteMessage("Registrado en la ciudad sin radar."));
@@ -29,28 +35,21 @@ namespace Practice1
 
                 // 4. Intento de utilizar el radar en un coche de policía que no tiene radar
                 policeCar2.StartPatrolling();
-                policeCar2.UseRadar(taxi1); // No tiene radar, debe imprimir un mensaje adecuado
+                policeCar2.UseRadar(taxi1); 
+
 
                 // 5. Alerta a la comisaría para perseguir un vehículo con cierta matrícula
-                policeCar1.StartPatrolling();
-                taxi1.SetSpeed(100); // Taxi 1 sobrepasa la velocidad legal
-                policeCar1.UseRadar(taxi1); // Detecta el exceso de velocidad y lanza la alerta
-
                 // 6. Aviso de que los demás policías comienzan a perseguir el vehículo
-                policeCar3.StartPatrolling();
-                Console.WriteLine("Aviso: Todos los policías empiezan a perseguir al vehículo con matrícula " + taxi1.GetPlate() + ".");
-                policeCar3.UseRadar(taxi1);
+                policeCar1.StartPatrolling();
+                taxi1.StartRide();
+                policeCar1.UseRadar(taxi1);
 
                 //// 7. Quitar la licencia a uno de los taxis que haya sobrepasado la velocidad legal
-                //if (taxi1.GetSpeed() > SpeedRadar.LegalSpeed)
-                //{
-                //    taxi1.RemoveLicense();
-                //    Console.WriteLine(taxi1.WriteMessage("Licencia retirada por exceso de velocidad."));
-                //}
+                policeStation.RemoveTaxiLicense(taxi1.GetPlate());
 
-                //// 8. Imprimir historial de radar de los coches de policía
-                //policeCar1.PrintRadarHistory();
-                //policeCar3.PrintRadarHistory();
+
+                policeCar1.PrintRadarHistory();
+                policeCar3.PrintRadarHistory();
             }
         }
     }

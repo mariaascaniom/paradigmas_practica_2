@@ -1,25 +1,27 @@
 ﻿namespace Practice1
 {
-    class PoliceCar : Vehicle
+    class PoliceCar : VehicleWithPlate
     {
-        //constant string as TypeOfVehicle wont change allong PoliceCar instances
-        private const string typeOfVehicle = "Police Car";
-        public bool IsPatrolling { get; private set; }  // Ahora es una propiedad pública con setter privado
-        public bool IsPursuing { get; private set; }    // Propiedad pública con setter privado
-         private SpeedRadar? speedRadar; // Puede tener, O NO, un radar
 
-        public PoliceCar(string plate, SpeedRadar? speedradar = null) : base(typeOfVehicle, plate)
+        private const string typeOfVehicle = "Police Car";
+        public bool IsPatrolling { get; private set; }  
+        public bool IsPursuing { get; private set; }    
+        private SpeedRadar? speedRadar;
+        private PoliceStation policeStation;
+
+        public PoliceCar(string plate, PoliceStation policeStation, SpeedRadar? speedradar = null) : base(typeOfVehicle, plate)
         {
             IsPatrolling = false;
             IsPursuing = false;
             speedRadar = speedradar;
+            this.policeStation = policeStation;
         }
 
         public void SetRadar(SpeedRadar speedRadar)
         {
             this.speedRadar = speedRadar;
         }
-        public void UseRadar(Vehicle vehicle)
+        public void UseRadar(VehicleWithPlate vehicle)
         {
             if (IsPatrolling)
             {
@@ -27,13 +29,27 @@
                 {
                     speedRadar.TriggerRadar(vehicle);
 
-                    string meassurement = speedRadar.GetLastReading();
-                    Console.WriteLine(WriteMessage($"Triggered radar. Result: {meassurement}"));
+
+                    if (speedRadar.IsSpeeding(vehicle))
+                    {
+                        Console.WriteLine(WriteMessage("Detecta velocidad ilegal"));
+                        policeStation.NotifyPlate(vehicle.GetPlate());
+                    }
+                    else
+                    {
+                        Console.WriteLine(WriteMessage("No detecta infracciones."));
+                    }
                 }
+                else
+                {
+                    Console.WriteLine(WriteMessage("No se puede usar radar, este coche no lo tiene"));
+                }
+
             }
+
             else
             {
-                Console.WriteLine(WriteMessage($"has no active radar."));
+                Console.WriteLine(WriteMessage($"Police car is not patrolling"));
             }
         }
 

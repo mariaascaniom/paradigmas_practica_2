@@ -9,7 +9,7 @@ namespace Practice1
         public City()
         { 
             TaxiList = new List<Taxi>();
-            policeStation = new PoliceStation();
+            policeStation = new PoliceStation(TaxiList);
             Console.WriteLine("Ciudad creada");
         }
 
@@ -22,6 +22,11 @@ namespace Practice1
         public List<Taxi> GetTaxiList()
         {
             return TaxiList;
+        }
+
+        public PoliceStation GetPoliceStation()
+        {
+            return policeStation;
         }
 
     }
